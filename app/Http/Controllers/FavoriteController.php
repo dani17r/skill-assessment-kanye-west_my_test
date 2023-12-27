@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Middleware\VerifyCsrfToken;
-use App\Http\Middleware\Authenticate;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Favorite;
@@ -11,24 +9,21 @@ use Inertia\Inertia;
 
 class FavoriteController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware([Authenticate::class, VerifyCsrfToken::class]);
-    }
-
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function view()
     {
         return Inertia::render('Favorite');
     }
 
-    public function getMany()
+    public function getAll(Request $request)
     {
-        $favorites = Favorite::latest()->paginate(5);
+        $user = Auth::user();
+        $limit = $request->get('limit');
+        $favorites = Favorite::where(['user_id' => $user->id,])->orderByDesc('id')->paginate(intval($limit));
         return response()->json($favorites);
     }
 
@@ -69,8 +64,16 @@ class FavoriteController extends Controller
      * @param  \App\Models\Favorite  $favorite
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Favorite $favorite)
+    public function destroy(Favorite $favorite, Request $request)
     {
-        //
+        $user = Auth::user();
+        $request->validate(["quote" => 'required|string']);
+        
+        $favorite = Favorite::where([
+            'quote' => $request->quote,
+            'user_id' => $user->id,
+        ])->delete();
+
+        return response()->json($favorite);
     }
 }

@@ -19,13 +19,7 @@ class Controller extends BaseController
      * @return \Illuminate\Http\RedirectResponse
      */
 
-    public function __construct()
-    {
-        $this->middleware([Authenticate::class, VerifyCsrfToken::class])
-        ->only('dashboard');
-    }
-
-    public function index() {
+    public function view() {
         return Inertia::render('Welcome', [
             'canLogin' => Route::has('login'),
             'canRegister' => Route::has('register'),

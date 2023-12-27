@@ -4,9 +4,7 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
     plugins: [
-        laravel({
-            input: ["resources/css/app.css", "resources/app/app.ts"],
-        }),
+        laravel(["resources/css/app.css", "resources/app/app.ts"]),
         vue({
             template: {
                 transformAssetUrls: {
@@ -19,6 +17,7 @@ export default defineConfig({
     resolve: {
         alias: {
             "@": "/resources/app",
+            "@composables": "/resources/app/composables",
             "@components": "/resources/app/components",
             "@modules": "/resources/app/modules",
             "@layouts": "/resources/app/layouts",

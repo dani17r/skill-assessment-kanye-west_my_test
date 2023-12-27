@@ -10,7 +10,7 @@ import Label from '@components/Label.vue';
 
 interface PropsI {
     canResetPassword: boolean,
-    status: string,
+    status?: string,
 }
 
 const props = defineProps<PropsI>();
@@ -30,6 +30,7 @@ const submit = () => {
 
 <template>
     <GuestLayout>
+
         <Head title="Log in" />
 
         <ValidationErrors class="mb-4" />
@@ -41,12 +42,14 @@ const submit = () => {
         <form @submit.prevent="submit">
             <div>
                 <Label for="email" value="Email" />
-                <Input id="email" type="email" class="mt-1 block w-full" v-model="form.email" required autofocus autocomplete="username" />
+                <Input id="email" type="email" class="mt-1 block w-full" v-model="form.email" autofocus
+                    autocomplete="username" />
             </div>
 
             <div class="mt-4">
                 <Label for="password" value="Password" />
-                <Input id="password" type="password" class="mt-1 block w-full" v-model="form.password" required autocomplete="current-password" />
+                <Input id="password" type="password" class="mt-1 block w-full" v-model="form.password"
+                    autocomplete="current-password" />
             </div>
 
             <div class="block mt-4">
@@ -57,8 +60,9 @@ const submit = () => {
             </div>
 
             <div class="flex items-center justify-end mt-4">
-                <Link v-if="props.canResetPassword" :href="route('password.request')" class="underline text-sm text-gray-600 hover:text-gray-900">
-                    Forgot your password?
+                <Link v-if="props.canResetPassword" :href="route('password.request')"
+                    class="underline text-sm text-gray-600 hover:text-gray-900">
+                Forgot your password?
                 </Link>
 
                 <Button class="ml-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
@@ -66,5 +70,4 @@ const submit = () => {
                 </Button>
             </div>
         </form>
-    </GuestLayout>
-</template>
+</GuestLayout></template>

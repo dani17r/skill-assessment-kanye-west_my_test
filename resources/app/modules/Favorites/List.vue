@@ -1,76 +1,82 @@
 <script setup lang="ts">
+import composableFavorites from '@composables/favorites';
+import { useInfiniteScroll } from '@vueuse/core';
+import { useQuoteStore } from '@store/quote';
 import { useUserStore } from '@store/user';
-// import { useQuoteStore } from '@store/quote';
-import { storeToRefs } from 'pinia';
-// import { onMounted } from 'vue';
+import type { FavoriteI } from '@/types';
+import { onMounted, ref } from 'vue';
 
-// import Loading from '@components/Loading.vue';
+import Loading from '@components/Loading.vue';
+import Icons from '@components/icons';
 
-// const quoteStore = useQuoteStore();
 const userStore = useUserStore();
-// const { currentUser } = storeToRefs(userStore);
 
-const dislike = (item: { dislike: boolean, quote: string }) => {
-  // quoteStore.updateOrCreateaFavoriteQuote({
-  //   dislike: !item.dislike,
-  //   quote: item.quote,
-  //   like: false,
-  // });
+const { favoriteStore, changeInFavorite, favorites, loadings, lifecycles } = composableFavorites();
+const quoteStore = useQuoteStore();
+const elScroll = ref<HTMLElement | null>(null);
+
+const updateOrDeleteFavorite = (status: 'like' | 'dislike', item: FavoriteI) => {
+  changeInFavorite(status, item);
+  quoteStore.updateQuotesByFavorites(item);
 }
 
-const like = (item: { like: boolean, quote: string }) => {
-  // quoteStore.updateOrCreateaFavoriteQuote({
-  //   quote: item.quote,
-  //   like: !item.like,
-  //   dislike: false,
-  // });
-}
+const initScrolling = () => useInfiniteScroll(
+  elScroll,
+  () => favoriteStore.getFavorites(true),
+  {
+    interval: 1000,
+    canLoadMore: () => lifecycles.value.scrolling,
+  },
+);
+
+onMounted(() => {
+  initScrolling();
+  favoriteStore.getFavorites()
+});
 </script>
 
 <template>
   <div class="flex justify-between justify-items-center mb-4">
     <h1 class="text-2xl text-zinc-700 p-1">Favorites</h1>
+
+    <div>
+      <span class="p-2 text-zinc-500"> Total {{ favorites.length }} </span>
+      <span class="p-2 text-zinc-500"> Limit {{ userStore.currentUser?.moderating }} </span>
+    </div>
   </div>
-  <div class="relative min-h-56">
-    <ul class="divide-y divide-zinc-200" v-if="userStore.currentUser">
-      <li class="p-3 sm:pb-4" v-for="(item, index) in userStore.currentUser.favorites" :key="index">
+  <div class="relative min-h-26" v-if="favorites.length">
+    <ul class="divide-y divide-zinc-200 max-h-[420px] scrollable overflow-x-hidden pr-2" ref="elScroll">
+      <li class="p-6 sm:pb-4" v-for="(item, index) in favorites" :key="index">
         <div class="flex items-center space-x-4 rtl:space-x-reverse">
-          <div class="flex-shrink-0">
-            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 stroke-zinc-400">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-            </svg>
+          <div class="text-sm text-zinc-500">{{ index + 1 }}</div>
+          <div class="group relative cursor-pointer">
+            <div
+              class="block md:hidden absolute invisible bottom-7 group-hover:visible w-60 bg-indigo-400 text-white px-4 mb-3 py-2 text-sm rounded-md">
+              <p class=" leading-2 pt-1 pb-1">{{ item.quote }}</p>
+            </div>
+            <Icons.Docs class="w-8 h-8 stroke-zinc-400 hover:cursor-pointer" />
           </div>
+
           <div class="flex-1 min-w-0">
             <p class="text-sm text-zinc-700 truncate">
               {{ item.quote }}
             </p>
           </div>
           <div class="inline-flex items-center gap-3">
-            <button class="text-green-500" @click="">
-              <svg :class="['w-6 h-6 hover:fill-green-500', { 'fill-green-400': item.like }]" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="1.5">
-                <path fill-rule="evenodd" clip-rule="evenodd"
-                  d="M15.9 4.5C15.9 3 14.418 2 13.26 2c-.806 0-.869.612-.993 1.82-.055.53-.121 1.174-.267 1.93-.386 2.002-1.72 4.56-2.996 5.325V17C9 19.25 9.75 20 13 20h3.773c2.176 0 2.703-1.433 2.899-1.964l.013-.036c.114-.306.358-.547.638-.82.31-.306.664-.653.927-1.18.311-.623.27-1.177.233-1.67-.023-.299-.044-.575.017-.83.064-.27.146-.475.225-.671.143-.356.275-.686.275-1.329 0-1.5-.748-2.498-2.315-2.498H15.5S15.9 6 15.9 4.5zM5.5 10A1.5 1.5 0 0 0 4 11.5v7a1.5 1.5 0 0 0 3 0v-7A1.5 1.5 0 0 0 5.5 10z" />
-              </svg>
+            <button class="text-green-500" @click="[updateOrDeleteFavorite('like', item)]">
+              <Icons.Like :class="['hover:fill-green-500', { 'fill-green-400': item.like }]" />
             </button>
-            <button class="text-red-400" @click="">
-              <svg :class="['w-6 h-6 hover:fill-red-400', { 'fill-red-400': item.dislike }]" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" transform="rotate(180)">
-                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-                <g id="SVGRepo_iconCarrier">
-                  <path fill-rule="evenodd" clip-rule="evenodd"
-                    d="M15.9 4.5C15.9 3 14.418 2 13.26 2c-.806 0-.869.612-.993 1.82-.055.53-.121 1.174-.267 1.93-.386 2.002-1.72 4.56-2.996 5.325V17C9 19.25 9.75 20 13 20h3.773c2.176 0 2.703-1.433 2.899-1.964l.013-.036c.114-.306.358-.547.638-.82.31-.306.664-.653.927-1.18.311-.623.27-1.177.233-1.67-.023-.299-.044-.575.017-.83.064-.27.146-.475.225-.671.143-.356.275-.686.275-1.329 0-1.5-.748-2.498-2.315-2.498H15.5S15.9 6 15.9 4.5zM5.5 10A1.5 1.5 0 0 0 4 11.5v7a1.5 1.5 0 0 0 3 0v-7A1.5 1.5 0 0 0 5.5 10z">
-                  </path>
-                </g>
-              </svg>
+            <button class="text-red-400" @click="updateOrDeleteFavorite('dislike', item)">
+              <Icons.Dislike :class="['hover:fill-red-400', { 'fill-red-400': item.dislike }]" />
             </button>
           </div>
         </div>
       </li>
     </ul>
 
-    <!-- <Loading v-model="loadings.init" /> -->
+    <Loading v-model="loadings.init" />
+  </div>
+  <div v-else class="relative flex justify-center items-center w-full min-h-26">
+    <h1 class="text-xl text-indigo-800">There are no favorites yet.</h1>
   </div>
 </template>

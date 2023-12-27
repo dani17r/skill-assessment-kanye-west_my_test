@@ -20,6 +20,7 @@ const submit = () => {
 
 <template>
     <GuestLayout>
+
         <Head title="Confirm Password" />
 
         <div class="mb-4 text-sm text-gray-600">
@@ -31,7 +32,8 @@ const submit = () => {
         <form @submit.prevent="submit">
             <div>
                 <Label for="password" value="Password" />
-                <Input id="password" type="password" class="mt-1 block w-full" v-model="form.password" required autocomplete="current-password" autofocus />
+                <Input id="password" type="password" class="mt-1 block w-full" v-model="form.password"
+                    autocomplete="current-password" autofocus />
             </div>
 
             <div class="flex justify-end mt-4">

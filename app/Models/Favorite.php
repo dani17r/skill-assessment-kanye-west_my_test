@@ -24,6 +24,11 @@ class Favorite extends Model
         'like',
     ];
 
+    protected $casts = [
+        'dislike' => 'boolean',
+        'like' => 'boolean',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);

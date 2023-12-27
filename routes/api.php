@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\QuoteController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -18,5 +18,3 @@ use App\Http\Controllers\QuoteController;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-
-Route::get('/quotes', [QuoteController::class, 'index']);

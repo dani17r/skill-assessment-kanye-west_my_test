@@ -8,7 +8,8 @@ body {
 }
 
 body::-webkit-scrollbar {
-  width: 5px;
+  width: 8px;
+  height: 8px;
 }
 
 body::-webkit-scrollbar-track {
@@ -21,13 +22,13 @@ body::-webkit-scrollbar-thumb {
   border: 2px solid rgba(255, 255, 255, 0);
 }
 
+.scrollable::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
 .scrollable {
   scrollbar-width: thin;
   scrollbar-color: #5E6DD4 rgba(255, 255, 255, 0);
-}
-
-.scrollable::-webkit-scrollbar {
-  width: 5px;
 }
 
 .scrollable::-webkit-scrollbar-track {
@@ -37,9 +38,26 @@ body::-webkit-scrollbar-thumb {
 .scrollable::-webkit-scrollbar-thumb {
   background-color: #5E6DD4;
   border-radius: 10px;
-  border: 2px solid rgba(255, 255, 255, 0);
+  border: 3px solid rgba(255, 255, 255, 0);
+}
+.scrollable::-webkit-resizer {
+  background-color: #5E6DD4;
+  border-radius: 10px;
+  border: 3px solid rgba(255, 255, 255, 0);
 }
 
 .dropdown-link {
   @apply block w-full px-4 py-2 text-left text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out;
+}
+
+.content-checkbox {
+  @apply w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-indigo-300 rounded-full peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-500;
+}
+
+.hide {
+  @apply ease-out duration-300 opacity-0 -z-10;
+}
+
+.show {
+  @apply ease-in duration-200 opacity-100;
 }

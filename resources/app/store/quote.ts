@@ -1,4 +1,4 @@
-// import { useUserStore } from "@store/user";
+import type { FavoriteI, QuoteI, RespQuoteI } from '@/types';
 import { defineStore } from "pinia";
 import axios from 'axios';
 
@@ -9,55 +9,44 @@ export const useQuoteStore = defineStore("quote", {
     },
     loadings: {
       init: false,
-      updateOrCreate:false
+      updateOrCreate: false
     },
-    quotes: [],
+    quotes: <QuoteI[]>[],
+    totalFavorites: 0,
+    limit: 5,
+    limitSelect: [5, 7, 10, 12, 15, 20]
   }),
-  getters: {},
   actions: {
-    getQuotes(forcing=false) {
+    getQuotes(forcing = false) {
       if (forcing || !this.lifecycles.onMount) {
         this.lifecycles.onMount = true;
         this.loadings.init = true
 
-        // const userStore = useUserStore();
-
-        return axios.get('api/quotes')
+        return axios.get<RespQuoteI>('/quotes', { params: { limit: this.limit } })
           .then((resp) => {
-            this.quotes = resp.data
-            this.quotes.map((item)=> {
-              // const favorite = userStore.favoritesKey[item.quote]
-              // if (favorite) {
-              //   item.like = favorite.like;
-              //   item.dislike = favorite.dislike;
-              // }
-              // else {
-              //   item.like = false;
-              //   item.dislike = false;
-              // }
-              return item
-            })
+            this.quotes = resp.data.data;
+            this.totalFavorites = resp.data.total_favorites;
           })
           .finally(() => setTimeout(() => this.loadings.init = false, 200))
       }
 
-      return new Promise<void>((resolve) => resolve())
+      return new Promise<boolean>((resolve) => resolve(false))
     },
-
-    updateOrCreateaFavoriteQuote(form: { like: boolean, dislike:boolean, quote: string}) {
-      this.loadings.updateOrCreate = true
-
-      return axios.post('/favorite', form)
-        .then((resp) => {
-          this.quotes.map((item) => {
-            if (resp.data.quote == item.quote){
-              item.like = resp.data.like;
-              item.dislike = resp.data.dislike;
-              return item
-            }
-          })
-        })
-        .finally(() => setTimeout(() => this.loadings.updateOrCreate = false, 200))
+    updateQuotesByFavorites(favorite: FavoriteI) {
+      this.quotes.map((item) => {
+        if (item.quote == favorite.quote) {
+          item.dislike = favorite.dislike;
+          item.like = favorite.like;
+          return item;
+        }
+      });
     },
+    resetAll() {
+      this.loadings.updateOrCreate = false;
+      this.lifecycles.onMount = false;
+      this.loadings.init = false;
+      this.totalFavorites = 0;
+      this.quotes = [];
+    }
   }
 });

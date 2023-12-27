@@ -30,6 +30,7 @@ const submit = () => {
 
 <template>
     <GuestLayout>
+
         <Head title="Reset Password" />
 
         <ValidationErrors class="mb-4" />
@@ -37,17 +38,20 @@ const submit = () => {
         <form @submit.prevent="submit">
             <div>
                 <Label for="email" value="Email" />
-                <Input id="email" type="email" class="mt-1 block w-full" v-model="form.email" required autofocus autocomplete="username" />
+                <Input id="email" type="email" class="mt-1 block w-full" v-model="form.email" autofocus
+                    autocomplete="username" />
             </div>
 
             <div class="mt-4">
                 <Label for="password" value="Password" />
-                <Input id="password" type="password" class="mt-1 block w-full" v-model="form.password" required autocomplete="new-password" />
+                <Input id="password" type="password" class="mt-1 block w-full" v-model="form.password"
+                    autocomplete="new-password" />
             </div>
 
             <div class="mt-4">
                 <Label for="password_confirmation" value="Confirm Password" />
-                <Input id="password_confirmation" type="password" class="mt-1 block w-full" v-model="form.password_confirmation" required autocomplete="new-password" />
+                <Input id="password_confirmation" type="password" class="mt-1 block w-full"
+                    v-model="form.password_confirmation" autocomplete="new-password" />
             </div>
 
             <div class="flex items-center justify-end mt-4">
@@ -56,5 +60,4 @@ const submit = () => {
                 </Button>
             </div>
         </form>
-    </GuestLayout>
-</template>
+</GuestLayout></template>

@@ -1,4 +1,5 @@
 import type { InertiaForm } from "@inertiajs/inertia-vue3";
+import type { PaginationI, UserI } from "@/types";
 import { defineStore } from "pinia";
 import { pick } from "lodash";
 import axios from "axios";
@@ -7,28 +8,61 @@ export const useUserStore = defineStore("user", {
 	state: () => ({
 		lifecycles: {
 			onMount: false,
+			onMountUsers: false,
 		},
 		loadings: {
 			update: false,
+			updateUsers: false,
 			updatePassword: false,
 		},
-		currentUser: null,
+		currentUser: <UserI | null>null,
+		users: <PaginationI<UserI>>{
+			data: [],
+			links: []
+		},
 	}),
-	getters: {},
+	getters: {
+		isBanning: ({ currentUser }) => currentUser?.isAdmin || !currentUser?.banning,
+		isAdmin: ({ currentUser }) => currentUser?.isAdmin,
+	},
 	actions: {
-		getCurrentUser() {
-			if (!this.lifecycles.onMount) {
-				this.lifecycles.onMount = true;
-				
-				return axios.get("/user/profile/show").then((resp) => {
-					this.currentUser = resp.data.user;
-				});
+		getUsers(forcing = false, page = 1) {
+			if (forcing || !this.lifecycles.onMountUsers) {
+				this.lifecycles.onMountUsers = true;
+				this.loadings.updateUsers = true;
+
+				return axios.get("/user/all", { params: { page } })
+					.then((resp) => {
+						this.users = resp.data;
+					})
+					.catch(() => this.lifecycles.onMountUsers = false)
+					.finally(() => setTimeout(() => this.loadings.updateUsers = false, 200))
 			}
 
 			return new Promise<void>((resolve) => resolve())
 		},
 
-		updateCurrentUser(form: InertiaForm<{ name: string; image: string|Blob; email: string; }>) {
+		getCurrentUser(forcing = false) {
+			if (forcing || !this.lifecycles.onMount) {
+				this.lifecycles.onMount = true;
+
+				return axios.get("/user/profile/show")
+					.then((resp) => {
+						this.currentUser = resp.data.user;
+					})
+					.catch(() => this.lifecycles.onMount = false)
+			}
+
+			return new Promise<boolean>((resolve) => resolve(false))
+		},
+
+		updateUserByAdmin(form: UserI) {
+			return axios
+				.post("/user/profile/update-by-admin", { ...form, user_id: form.id })
+				.then((resp) => resp.data)
+		},
+
+		updateCurrentUser(form: InertiaForm<{ name: string; image: string | Blob; email: string; }>) {
 			this.loadings.update = true;
 
 			const formData = new FormData();
@@ -49,8 +83,8 @@ export const useUserStore = defineStore("user", {
 					for (const field in errors) {
 						form.setError(field as typeof errors, errors[field][0]);
 					}
-				}).finally(()=> {
-					setTimeout(() => this.loadings.update = false, 100)
+				}).finally(() => {
+					setTimeout(() => this.loadings.update = false, 200)
 				})
 		},
 
@@ -58,9 +92,9 @@ export const useUserStore = defineStore("user", {
 			this.loadings.updatePassword = true
 			return axios
 				.post("/user/profile/change-password", pick(form, [
-						"check_new_password",
-						"current_password", 
-						"new_password", 
+					"check_new_password",
+					"current_password",
+					"new_password",
 				]))
 				.then((resp) => {
 					form.clearErrors()
@@ -74,10 +108,11 @@ export const useUserStore = defineStore("user", {
 					}
 				})
 				.finally(() => {
-					setTimeout(() => this.loadings.updatePassword = false, 100)
+					setTimeout(() => this.loadings.updatePassword = false, 200)
 				})
 		},
-		emptyCurrentUser(){
+
+		resetAll() {
 			this.lifecycles.onMount = false;
 			this.loadings.update = false;
 			this.loadings.updatePassword = false;

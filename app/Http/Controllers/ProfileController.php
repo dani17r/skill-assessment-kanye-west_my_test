@@ -4,15 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use App\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Storage;
-use App\Http\Middleware\Authenticate;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\User;
 
 
 class ProfileController extends BaseController
@@ -23,19 +22,47 @@ class ProfileController extends BaseController
    * @return \Illuminate\Http\RedirectResponse
    */
 
-  public function __construct()
-  {
-    $this->middleware([Authenticate::class, VerifyCsrfToken::class]);
-  }
-
-  public function index()
+  public function view()
   {
     return Inertia::render('Profile');
   }
 
-  public function show()
+  public function view_all()
   {
-    return response()->json([ 'user' => Auth::user() ]);
+    return Inertia::render('Users');
+  }
+
+  public function getAll(Request $request)
+  {
+    $limit = $request->get('limit');
+    $favorites = User::where('id', '!=', Auth::id())
+    ->orderBy('created_at')
+    ->paginate(intval($limit));
+
+    return response()->json($favorites);
+  }
+
+  public function update_by_admin(Request $request)
+  {
+    $request->validate([
+      'user_id' => 'required',
+      'moderating' => 'numeric',
+      'banning' => 'boolean',
+    ]);
+    
+    $update = User::where(['id' => $request->user_id])->update([
+      'moderating' =>  $request->moderating,
+      'banning' =>  $request->banning,
+    ]);
+
+    return response()->json($update);
+  }
+
+  public function show()
+  { 
+    $user = Auth::user()->makeVisible('isAdmin');
+    $user->isAdmin = boolval($user->isAdmin);
+    return response()->json([ 'user' => $user ]);
   }
 
   public function update(Request $request)
@@ -43,7 +70,7 @@ class ProfileController extends BaseController
     $user = Auth::user();
 
     $request->validate([
-      'image' => 'image|mimes:jpeg,png,jpg|max:2048',
+      'image' => 'image|mimes:jpeg,png,jpg,webp|max:2048',
       'name' => ['required', 'string', 'max:255'],
       'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
     ]);

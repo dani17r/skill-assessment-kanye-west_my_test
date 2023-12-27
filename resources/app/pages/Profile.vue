@@ -2,9 +2,9 @@
 import { Head } from '@inertiajs/inertia-vue3';
 import { useUserStore } from '@store/user';
 
-import UpdateProfilePassword from '@components/UpdateProfilePassword.vue';
+import UpdateProfilePassword from '@modules/users/UpdateProfilePassword.vue';
 import AuthenticatedLayout from '@layouts/Authenticated.vue';
-import UpdateProfile from '@components/UpdateProfile.vue';
+import UpdateProfile from '@modules/users/UpdateProfile.vue';
 
 const userStore = useUserStore();
 </script>
@@ -18,8 +18,8 @@ const userStore = useUserStore();
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-5">
                     <h1 class="text-2xl font-bold mb-4">User Profile</h1>
                     <div class="flex flex-col gap-8 md:flex-row">
-                        <UpdateProfile class="w-full"/>
-                        <UpdateProfilePassword class="w-full"/>
+                        <UpdateProfile class="w-full" />
+                        <UpdateProfilePassword class="w-full" />
                     </div>
                 </div>
             </div>
