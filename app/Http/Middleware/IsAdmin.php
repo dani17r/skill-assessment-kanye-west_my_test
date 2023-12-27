@@ -16,7 +16,7 @@ class IsAdmin
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
     public function handle(Request $request, Closure $next)
-    {
+    {   
         if (!boolval(Auth::user()->isAdmin)) {
             return redirect('/dashboard');
         }

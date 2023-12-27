@@ -8,7 +8,6 @@ use App\Http\Middleware\Authenticate;
 
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
-// use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class Controller extends BaseController

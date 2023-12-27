@@ -9,7 +9,7 @@ use App\Http\Controllers\Controller;
 Route::get('/', [Controller::class, 'view'])->name('main');
 
 
-Route::middleware('auth.session')->group(function () {
+Route::middleware('auth')->group(function () {
   
   Route::middleware('is_admin')->group(function () {
     Route::post('/user/profile/update-by-admin', [ProfileController::class, 'update_by_admin']);
