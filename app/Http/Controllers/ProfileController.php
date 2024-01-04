@@ -78,7 +78,7 @@ class ProfileController extends BaseController
     $user = Auth::user();
 
     $request->validate([
-      'image' => 'image|mimes:jpeg,png,jpg,webp|max:2048',
+      'image' => 'nullable|max:204',
       'name' => ['required', 'string', 'max:255'],
       'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
     ]);
