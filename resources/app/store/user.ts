@@ -2,7 +2,7 @@ import type { InertiaForm } from "@inertiajs/inertia-vue3";
 import type { PaginationI, UserI } from "@/types";
 import { defineStore } from "pinia";
 import { pick } from "lodash";
-import axios from "axios";
+import { api } from "@services/main";
 
 export const useUserStore = defineStore("user", {
 	state: () => ({
@@ -31,7 +31,7 @@ export const useUserStore = defineStore("user", {
 				this.lifecycles.onMountUsers = true;
 				this.loadings.updateUsers = true;
 
-				return axios.get("/user/all", { params: { page } })
+				return api.get("/user/profile/all", { params: { page } })
 					.then((resp) => {
 						this.users = resp.data;
 					})
@@ -46,7 +46,7 @@ export const useUserStore = defineStore("user", {
 			if (forcing || !this.lifecycles.onMount) {
 				this.lifecycles.onMount = true;
 
-				return axios.get("/user/profile/show")
+				return api.get("/user/profile/show")
 					.then((resp) => {
 						this.currentUser = resp.data.user;
 					})
@@ -57,7 +57,7 @@ export const useUserStore = defineStore("user", {
 		},
 
 		updateUserByAdmin(form: UserI) {
-			return axios
+			return api
 				.post("/user/profile/update-by-admin", { ...form, user_id: form.id })
 				.then((resp) => resp.data)
 		},
@@ -70,7 +70,7 @@ export const useUserStore = defineStore("user", {
 			formData.append("email", form.email);
 			formData.append("name", form.name);
 
-			return axios
+			return api
 				.post("/user/profile/update", formData)
 				.then((resp) => {
 					setTimeout(() => this.currentUser = resp.data.user, 200);
@@ -90,7 +90,7 @@ export const useUserStore = defineStore("user", {
 
 		updateUserPassword(form: InertiaForm<{ check_new_password: string; current_password: string; new_password: string; }>) {
 			this.loadings.updatePassword = true
-			return axios
+			return api
 				.post("/user/profile/change-password", pick(form, [
 					"check_new_password",
 					"current_password",

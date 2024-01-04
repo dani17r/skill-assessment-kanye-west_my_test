@@ -1,6 +1,6 @@
 import type { FavoriteI } from '@/types';
 import { defineStore } from "pinia";
-import axios from "axios";
+import { api } from "@services/main";
 import { remove } from 'lodash';
 import { useQuoteStore } from './quote';
 
@@ -22,7 +22,7 @@ export const useFavoriteStore = defineStore("favorite", {
 				this.lifecycles.onMount = true;
 				this.loadings.init = true;
 
-				return axios.get<{ data: FavoriteI[] }>("/favorite/all", { params: { page: this.pag, limit: 20 } })
+				return api.get<{ data: FavoriteI[] }>("/favorite/all", { params: { page: this.pag, limit: 20 } })
 					.then((resp) => {
 						if (!resp.data.data.length) {
 							this.lifecycles.scrolling = false;
@@ -38,7 +38,7 @@ export const useFavoriteStore = defineStore("favorite", {
 		},
 
 		updateOrCreateaFavorite(status: string, form: FavoriteI) {
-			return axios.post<FavoriteI>('/favorite', form)
+			return api.post<FavoriteI>('/favorite', form)
 				.then((resp) => {
 					if (this.favorites.length) {
 						if (status == 'updated') {
@@ -59,7 +59,7 @@ export const useFavoriteStore = defineStore("favorite", {
 		},
 
 		deleteFavorite(form: FavoriteI) {
-			return axios.post<FavoriteI>('/favorite/delete', { quote: form.quote })
+			return api.post<FavoriteI>('/favorite/delete', { quote: form.quote })
 				.then(() => {
 					if (this.favorites.length) {
 						useQuoteStore().totalFavorites -= 1

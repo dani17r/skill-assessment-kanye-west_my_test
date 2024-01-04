@@ -19,6 +19,7 @@ export default defineConfig({
             "@": "/resources/app",
             "@composables": "/resources/app/composables",
             "@components": "/resources/app/components",
+            "@services": "/resources/app/services",
             "@modules": "/resources/app/modules",
             "@layouts": "/resources/app/layouts",
             "@pages": "/resources/app/pages",

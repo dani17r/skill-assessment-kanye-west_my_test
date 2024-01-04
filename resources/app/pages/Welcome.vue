@@ -4,14 +4,6 @@ import { Head, Link } from '@inertiajs/inertia-vue3';
 import { useUserStore } from "@store/user";
 import { onMounted } from 'vue';
 
-interface PropsI {
-    canLogin: Boolean,
-    canRegister: Boolean,
-    laravelVersion?: String,
-    phpVersion?: String,
-}
-
-const props = defineProps<PropsI>();
 const userStore = useUserStore();
 
 onMounted(() => userStore.getCurrentUser())
@@ -21,7 +13,7 @@ onMounted(() => userStore.getCurrentUser())
     <Head title="Welcome" />
 
     <div class="relative flex items-top justify-center min-h-screen bg-gray-100 items-center pt-0">
-        <div v-if="props.canLogin" class="fixed top-0 right-0 px-6 py-4">
+        <div class="fixed top-0 right-0 px-6 py-4">
             <Link v-if="userStore.currentUser" :href="route('dashboard')" class="text-sm text-gray-700 underline">
             Dashboard
             </Link>
@@ -31,7 +23,7 @@ onMounted(() => userStore.getCurrentUser())
                 Log in
                 </Link>
 
-                <Link v-if="props.canRegister" :href="route('register')" class="ml-4 text-sm text-gray-700 underline">
+                <Link :href="route('register')" class="ml-4 text-sm text-gray-700 underline">
                 Register
                 </Link>
             </template>

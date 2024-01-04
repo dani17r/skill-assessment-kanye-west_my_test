@@ -9,6 +9,13 @@ use Inertia\Inertia;
 
 class FavoriteController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('is_banning', [
+            'only' => ['view', 'destroy', 'updateOrCreate', 'getAll'],
+        ]);
+    }
+
     /**
      * Display a listing of the resource.
      *

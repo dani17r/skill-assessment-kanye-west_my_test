@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Http;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,9 +24,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $baseUrl = env('API_ENDPOINT');
-        $this->app->singleton(Client::class, function ($app) use ($baseUrl) {
-            return new Client(['base_uri' => $baseUrl]);
+        Http::macro('ApiKanye', function () {
+            $baseUrl = strval(env('API_ENDPOINT'));
+            return Http::baseUrl($baseUrl);
         });
         
     }

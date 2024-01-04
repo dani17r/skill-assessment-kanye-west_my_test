@@ -1,9 +1,6 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -15,6 +12,20 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('auth')->group(function () {
+    
+    /** ---------PROFILE--------- */
+    Route::post('/user/profile/update-by-admin', 'ProfileController@update_by_admin');
+    Route::post('/user/profile/change-password', 'ProfileController@changePassword');
+    Route::post('/user/profile/update', 'ProfileController@update');
+    Route::get('/user/profile/all', 'ProfileController@getAll');
+    Route::get('/user/profile/show', 'ProfileController@show');
+    
+    /** ---------FAVORITE--------- */
+    Route::post('/favorite/delete', 'FavoriteController@destroy');
+    Route::post('/favorite', 'FavoriteController@updateOrCreate');
+    Route::get('/favorite/all', 'FavoriteController@getAll');
+
+    /** ---------QUOTE--------- */
+    Route::get('/quotes', 'QuoteController@index');
 });

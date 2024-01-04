@@ -4,9 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
-use App\Models\Favorite;
-use GuzzleHttp\Client;
 
 class QuoteController extends BaseController
 {
@@ -21,31 +20,27 @@ class QuoteController extends BaseController
     $this->middleware('throttle:30,1');
   }
 
-  public function index(Request $request, Client $client)
+  public function index(Request $request, Http $Http)
   {
-
-    $limit = intval($request->get('limit')) ?? 5;
-
     $user = Auth::user();
-    $countFavorite = Favorite::where(['user_id' => $user->id])->count();
-    $responses = [];
+    $countFavorite = $user->favorites()->count();
+    $limit = intval($request->get('limit'));
 
-    for ($i = 0; $i < $limit; $i++) {
-      $response = json_decode($client->request('GET')->getBody());
-      $favorite = Favorite::where(['quote' => $response->quote, 'user_id' => $user->id])->first();
+    $responses = collect(range(1, $limit))->map(function () use ($Http, $user) {
+      $response = json_decode($Http::ApiKanye()->get('/'));
+      $favorite = $user->favorites()->where('quote', $response->quote)->first();
 
-      if($favorite){
-        $response->like = boolval($favorite->like);
-        $response->dislike = boolval($favorite->dislike);
-      }
-      else {
+      if ($favorite) {
+        $response->like = $favorite->like;
+        $response->dislike = $favorite->dislike;
+      } else {
         $response->like = false;
         $response->dislike = false;
       }
-      
-      $responses[] = $response;
-    }
 
+      return $response;
+    });
+  
     return response()->json([ 
       'total_favorites' => $countFavorite,
       'data' => $responses, 

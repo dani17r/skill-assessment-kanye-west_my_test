@@ -13,12 +13,6 @@
         @vite('resources/css/app.css')
 
         <!-- Scripts -->
-        <script>
-            window.Laravel = {!! json_encode([
-                'csrfToken' => csrf_token(),
-                'apiToken' => $currentUser->api_token ?? null,
-            ]) !!};
-        </script>
         @routes
         @vite('resources/app/app.ts')
         @inertiaHead

@@ -1,6 +1,6 @@
 import type { FavoriteI, QuoteI, RespQuoteI } from '@/types';
 import { defineStore } from "pinia";
-import axios from 'axios';
+import { api } from '@services/main';
 
 export const useQuoteStore = defineStore("quote", {
   state: () => ({
@@ -22,7 +22,7 @@ export const useQuoteStore = defineStore("quote", {
         this.lifecycles.onMount = true;
         this.loadings.init = true
 
-        return axios.get<RespQuoteI>('/quotes', { params: { limit: this.limit } })
+        return api.get<RespQuoteI>('/quotes', { params: { limit: this.limit } })
           .then((resp) => {
             this.quotes = resp.data.data;
             this.totalFavorites = resp.data.total_favorites;

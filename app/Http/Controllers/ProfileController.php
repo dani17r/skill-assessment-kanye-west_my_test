@@ -16,6 +16,14 @@ use App\Models\User;
 
 class ProfileController extends BaseController
 {
+
+  public function __construct()
+  {
+    $this->middleware('is_admin', [
+      'only' => ['view_all', 'update_by_admin', 'getAll']
+    ]);
+  }
+
   /**
    *
    * @param  \Illuminate\Http\Request  $request
